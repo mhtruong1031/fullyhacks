@@ -1,49 +1,33 @@
-import cv2
-import easyocr
+import p2t_clustering as pc
 
-from pix2text import Pix2Text
+from openai import OpenAI
+from config import *
 
-reader = easyocr.Reader(['en'])
-p2t    = Pix2Text()
-
-# Extract LaTeX
-def extract_latex_items(image_path: str) -> list[dict]:
-    return p2t.recognize_text_formula(image_path, resized_shape=768, return_text=False)
-
-# Extracts text from an image and returns 
-def extract_text(image_path: str) -> list[str]:
-    image = cv2.imread(image_path)
-
-    # Preprocess image
-    gray         = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    text_results = reader.readtext(gray)
-
-    # Find and group text
-    lines   = [] # Lines with metadata
-    for result in text_results:
-        bbox, word, conf = result
-        word             = word.lower()
-
-        w_upper, w_lower = bbox[0][1], bbox[2][1] # Current word y_value bounds
-        found = False
-
-        for line in lines:
-            l_bbox           = line[0][0]
-            l_lower, l_upper = l_bbox[0][1], l_bbox[2][1] # Line bounds
-
-            if l_lower <= w_lower <= l_upper or l_lower <= w_upper <= l_upper: # Test for overlap
-                line.append((bbox, word, conf))
-                found = True
-                break
-
-        if not found:
-            lines.append([(bbox, word, conf)])
-
-    lines_w = [] # Lines with only words
-    for line in lines:
-        line.sort(key=lambda x: x[0][0][0]) # Sort by left to right
-        words = [word[1] for word in line] # Grab only words
-
-        lines_w.append(words)
+class NovaNotes:
+    def __init__(self) -> None:
+        self.client = OpenAI(api_key=API_KEY)
     
-    return [" ".join(line) for line in lines_w]
+    def run_inference(self, image_path: str, scale_factor = 1) -> list[str]:
+        latex_extract = pc.extract_latex_items(image_path)
+        text_clusters = pc.cluster_p2t_output(latex_extract, scale_factor = scale_factor)
+
+        prompts_list: list[str] = pc.clusters_to_text(text_clusters)
+
+        return [self.__ask_gpt(prompt) for prompt in prompts_list]
+    
+    def __ask_gpt(self, prompt: str, answer_mode: str = True) -> str:
+        if answer_mode:
+            context = "This is formatted LaTeX code depicting some academic question. Answer in 120 words or less. Please answer and format your new answer in LaTeX code."
+        else:
+            context = "Give me a one sentence question about this topic."
+        try:
+            chat = self.client.chat.completions.create(
+                model      = DEFAULT_MODEL,
+                messages   = [{"role": "system", "content": context}, {"role": "user", "content": prompt}],
+                max_tokens = MAX_TOKENS
+            )
+            return chat.choices[0].message.content.strip()
+        except Exception as e:
+            print(f"API Error: {e}")
+            return "Sorry, something went wrong when talking to OpenAI."
+        
