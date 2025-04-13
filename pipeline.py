@@ -3,8 +3,6 @@ import easyocr
 
 from pix2text import Pix2Text
 
-from p2t_clustering import cluster_p2t_output, clusters_to_text
-
 reader = easyocr.Reader(['en'])
 p2t    = Pix2Text()
 
@@ -49,23 +47,3 @@ def extract_text(image_path: str) -> list[str]:
         lines_w.append(words)
     
     return [" ".join(line) for line in lines_w]
-
-def process_annotations(image_path: str, scale_factor = 1):
-    latex_extract = extract_latex_items(image_path)
-    text_clusters = cluster_p2t_output(latex_extract, scale_factor = scale_factor)
-
-    prompts_list: list[str] = clusters_to_text(text_clusters)
-
-    return prompts_list
-    # load image
-
-    # process and return relevant information (image, text)
-
-        # extract text and sort into categories, position on page, overall topic
-    
-            
-
-        # locate and identify annotations
-            # TO-DO: self-trained or pretrained+finetuned
-
-    pass
