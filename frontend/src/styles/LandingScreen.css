@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700;900&display=swap');
+
+.landing-screen-title {
+    position: absolute;
+    top: 190px;
+    left: 99px;
+    font-family: 'Noto Sans', sans-serif;
+    font-weight: 900;
+    font-size: 50px;
+    line-height: 1.3;
+    color: #000;
+    margin-bottom: 16px;
+    text-align: left;
+  }
+
+.landing-subheading {
+position: absolute;
+top: 420px;
+left: 99px;
+color: #6A6A6A;
+font-family: "Noto Sans";
+font-size: 30px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+}
+
+.try-button {
+position: absolute;
+top: 620px;
+left: 99px;
+width: 184px;
+height: 57px;
+flex-shrink: 0;
+}
+
+
+.upload-container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.upload-label {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+#pdf-upload {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+  
+  
