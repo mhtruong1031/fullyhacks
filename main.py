@@ -1,7 +1,12 @@
-from pipeline import process_annotations
+from pipeline import NovaNotes
+
+client = NovaNotes()
 
 def main():
-    print(process_annotations('test.jpg', scale_factor = 1.2))
+    responses = client.run_inference('test.jpg')
+    for r in responses:
+        print(r)
     
+
 if __name__ == '__main__':
     main()
