@@ -1,4 +1,5 @@
 import p2t_clustering as pc
+import fitz
 
 from openai import OpenAI
 from config import *
@@ -17,7 +18,7 @@ class NovaNotes:
     
     def __ask_gpt(self, prompt: str, answer_mode: str = True) -> str:
         if answer_mode:
-            context = "This is formatted LaTeX code depicting some academic question. Answer in 120 words or less. Please answer and format your new answer in LaTeX code."
+            context = "This is formatted LaTeX code depicting some academic question. Answer in 150 words or less. Please answer and format your new answer in LaTeX code and continue the solving if unfinished."
         else:
             context = "Give me a one sentence question about this topic."
         try:
@@ -30,4 +31,25 @@ class NovaNotes:
         except Exception as e:
             print(f"API Error: {e}")
             return "Sorry, something went wrong when talking to OpenAI."
+        
+    def get_questions_with_file(self, file_path: str) -> str:
+        text = self.extract_text_from_pdf(file_path)
+
+        response = self.client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"Based on this PDF content, give me 10 questions in LaTeX code in one line split by the # symbol, and do not give any uncessary words that aren't part of the question.:\n\n{text[:10000]}"  # GPT input limit handling
+                }
+            ]
+        )
+
+        return response.choices[0].message.content
+    
+    def extract_text_from_pdf(self, path):
+        doc = fitz.open(path)
+        return "\n".join([page.get_text() for page in doc])
+
+
         

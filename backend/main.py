@@ -1,4 +1,4 @@
-from backend.pipeline import NovaNotes
+from pipeline import NovaNotes
 
 client = NovaNotes()
 
