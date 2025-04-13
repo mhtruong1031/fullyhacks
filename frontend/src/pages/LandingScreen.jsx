@@ -29,7 +29,7 @@ export const LandingScreen = () => {
     formData.append('file', selectedFile);
 
     try {
-      const response = await fetch('/api/upload', { //change depending on backend
+      const response = await fetch('http://127.0.0.1:8000/question', { //change depending on backend
         method: 'POST',
         body: formData,
       });
