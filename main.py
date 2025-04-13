@@ -1,4 +1,4 @@
-from NovaNotes import NovaNotes
+from pipeline import NovaNotes
 
 client = NovaNotes()
 
