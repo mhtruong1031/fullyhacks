@@ -1,38 +1,17 @@
 import os
+import cv2
+import base64
 
 from elevenlabs.client import ElevenLabs
 from config import EL_API_KEY
 
 elevenlabs_client = ElevenLabs(api_key=EL_API_KEY)
 
-AUDIO_FOLDER = "assets/voice_clips"
+AUDIO_FOLDER = ""
 
 # ElevenLabs Voice IDs
 voice_ids = {
-    "BrianFamilyGuy":    os.getenv("ELEVENLABS_VOICE_BRIANFAMILYGUY"),
-    "Caillou":           os.getenv("ELEVENLABS_VOICE_CAILLOU"),
-    "ChaewonLeSserafim": os.getenv("ELEVENLABS_VOICE_CHAEWONLESSERFAIM"),
-    "DanielleNewJeans":  os.getenv("ELEVENLABS_VOICE_DANIELENEWJEANS"),
-    "DrakeArtist":       os.getenv("ELEVENLABS_VOICE_DRAKEARTIST"),
-    "FelixStrayKids":    os.getenv("ELEVENLABS_VOICE_FELIXSTRAYKIDS"),
-    "FerbFletcher":      os.getenv("ELEVENLABS_VOICE_FERBFLETCHER"),
-    "GoofyDisney":       os.getenv("ELEVENLABS_VOICE_GOOFYDISNEY"),
-    "HanniNewJeans":     os.getenv("ELEVENLABS_VOICE_HANNINEWJEANS"),
-    "JungkookBTS":       os.getenv("ELEVENLABS_VOICE_JUNGKOOKBTS"),
-    "KarinaAespa":       os.getenv("ELEVENLABS_VOICE_KARINAAESPA"),
-    "KendrickLamar":     os.getenv("ELEVENLABS_VOICE_KENDRICKLAMAR"),
-    "LeeKnowStrayKids":  os.getenv("ELEVENLABS_VOICE_LEEKNOWSTRAYKIDS"),
-    "MickeyMouse":       os.getenv("ELEVENLABS_VOICE_MICKEYMOUSE"),
-    "MinjiNewJeans":     os.getenv("ELEVENLABS_VOICE_MINJINEWJEANS"),
-    "PatrickStar":       os.getenv("ELEVENLABS_VOICE_PATRICKSTAR"),
-    "PeterGriffin":      os.getenv("ELEVENLABS_VOICE_PETERGRIFFIN"),
-    "PhineasFlynn":      os.getenv("ELEVENLABS_VOICE_PHINEASFLYNN"),
-    "SpongebobSquarepants": os.getenv("ELEVENLABS_VOICE_SPONGEBOBSQUAREPANTS"),
-    "StewieFamilyGuy":   os.getenv("ELEVENLABS_VOICE_STEWIEFAMILYGUY"),
-    "TravisScott":       os.getenv("ELEVENLABS_VOICE_TRAVISSCOTT"),
-    "TzuyuTwice":        os.getenv("ELEVENLABS_VOICE_TZUYUTWICE"),
-    "WonyoungIVE":       os.getenv("ELEVENLABS_VOICE_WONYOUNGIVE"),
-    "YunjinLeSserafim":  os.getenv("ELEVENLABS_VOICE_YUNJINLESSERAFIM"),
+    "ChaewonLeSserafim": 'hESB0LdnxTU2qjDJP66z'
 }
 
 def create_audio_folder():
@@ -86,3 +65,19 @@ def elevenlabs_generate_voices(script):
         lineNumber += 1
     return {"voice_files": voice_file_paths}
 
+# Analyze image for recyclability; returns image path
+def take_image(output_path: str = "") -> str:
+    path = output_path+'temp.png'
+
+    camera     = cv2.VideoCapture(1)
+    for _ in range(5):
+        ret, frame = camera.read()
+
+    cv2.imwrite(path, frame)
+    camera.release()
+
+    return path
+
+def encode_image(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode("utf-8")

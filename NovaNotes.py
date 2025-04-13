@@ -2,13 +2,13 @@ from openai import OpenAI
 from elevenlabs.client import ElevenLabs
 
 import speech_recognition as sr
-import json
+from playsound import playsound
 
 # Custom modules
-import add_ons, threading
+import add_ons
 
-DEFAULT_MODEL = "gpt-3.5-turbo"
-WAKE_WORD = "jarvis"
+DEFAULT_MODEL = "gpt-4o"
+WAKE_WORD = "nova"
 EXIT_WORD = "thank you"
 
 class NovaNotes:
@@ -25,20 +25,24 @@ class NovaNotes:
         self.client = OpenAI(api_key=self.api_key)
 
         # Voice engine
-
-        
+        self.elevenlabs_client = ElevenLabs(api_key=el_api_key)
 
         # Initialize session memory
         self.messages = []
-        self.messages.append({"role": "system", "content": self.memory})
 
     def __listen(self):
         recognizer = sr.Recognizer()
         with sr.Microphone() as source:
             audio = recognizer.listen(source)
         try:
-            command = recognizer.recognize_google(audio)
-            print(f"YOU: {command}")
+            langs = ["en-US", "vi-VN"]
+            for lang in langs:
+                try:
+                    command = recognizer.recognize_google(audio, language=lang)
+                    print(f"Detected language ({lang}): {command}")
+                    break
+                except sr.UnknownValueError:
+                    continue
             return command
         except sr.UnknownValueError:
             return ""
@@ -46,9 +50,14 @@ class NovaNotes:
             return ""
         
     def speak(self, text):
-        print(f"NovaNotes: {text}")
-        self.engine.say(text)
-        self.engine.runAndWait()
+        audio = self.elevenlabs_client.text_to_speech.convert(
+                text          = text,
+                voice_id      = add_ons.voice_ids['ChaewonLeSserafim'],
+                model_id      = "eleven_multilingual_v2",
+                output_format = "mp3_44100_128",
+        )
+        file_path = add_ons.save_as_audio_file(audio, f"temp.mp3")
+        playsound(file_path)
     
     def ask_gpt(self, prompt):
         self.messages.append({"role": "user", "content": prompt})
@@ -73,7 +82,6 @@ class NovaNotes:
                     }
         ]}]
 
-
         response = self.client.chat.completions.create(
             model="gpt-4-turbo",
             messages=messages,
@@ -89,7 +97,7 @@ class NovaNotes:
         self.activated = False
     
     # Main runtime function of NovaNotes
-    def run_jarvis(self):
+    def run_novanote(self):
         self.speak("NovaNotes is online and listening.")
         
         while True:
@@ -104,7 +112,7 @@ class NovaNotes:
                 self.speak("Shutting down. Until next time.")
                 break
 
-            if command.startswith("jarvis"):
+            if command.startswith(WAKE_WORD):
                 j_command = command[7:]
             else:
                 j_command = command

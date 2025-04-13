@@ -2,7 +2,7 @@ import p2t_clustering as pc
 import fitz
 
 from openai import OpenAI
-from config import *
+from config_ import *
 
 class NovaNotes:
     def __init__(self) -> None:
