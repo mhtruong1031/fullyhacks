@@ -12,9 +12,10 @@ WAKE_WORD = "nova"
 EXIT_WORD = "thank you"
 
 class NovaNotes:
-    def __init__(self, gpt_api_key: str, el_api_key: str, text_mode: bool = False, max_tokens: int = 40, default_model:str = DEFAULT_MODEL) -> None:
+    def __init__(self, gpt_api_key: str, el_api_key: str, text_mode: bool = False, max_tokens: int = 40, wake_word:str = WAKE_WORD, default_model:str = DEFAULT_MODEL) -> None:
         # NovaNotes variables
         self.text_mode = text_mode
+        self.wake_word = wake_word
         self.activated = False # GPT-mode
 
         # GPT Configurables
@@ -26,12 +27,15 @@ class NovaNotes:
 
         # Voice engine
         self.elevenlabs_client = ElevenLabs(api_key=el_api_key)
+        self.voice             = 'chaewon'
 
         # Initialize session memory
         self.messages = []
 
     def __listen(self):
         recognizer = sr.Recognizer()
+        command    = ""
+
         with sr.Microphone() as source:
             audio = recognizer.listen(source)
         try:
@@ -43,16 +47,18 @@ class NovaNotes:
                     break
                 except sr.UnknownValueError:
                     continue
-            return command
+            return command.lower()
         except sr.UnknownValueError:
             return ""
         except sr.RequestError:
             return ""
         
     def speak(self, text):
+        print(self.voice)
+        print("Chat: " + text)
         audio = self.elevenlabs_client.text_to_speech.convert(
                 text          = text,
-                voice_id      = add_ons.voice_ids['ChaewonLeSserafim'],
+                voice_id      = add_ons.voice_ids[self.voice],
                 model_id      = "eleven_multilingual_v2",
                 output_format = "mp3_44100_128",
         )
@@ -60,7 +66,7 @@ class NovaNotes:
         playsound(file_path)
     
     def ask_gpt(self, prompt):
-        self.messages.append({"role": "user", "content": prompt})
+        self.messages.append({"role": "user", "content": prompt + f". Please act like {self.wake_word}. Please answer in under 25 words and only in natural language and no latex. Make sure each character's personality shines through in their voice lines and include subtle references to each character's niche, but keep them short. Also respond in the language you're spoen to in."})
 
         try:
             chat = self.client.chat.completions.create(
@@ -112,15 +118,29 @@ class NovaNotes:
                 self.speak("Shutting down. Until next time.")
                 break
 
-            if command.startswith(WAKE_WORD):
+            if command.startswith(self.wake_word):
                 j_command = command[7:]
             else:
                 j_command = command
             
             # || SPECIAL FUNCTIONS ||
 
-            
+            if j_command.startswith("help me"):
+                image_path = add_ons.take_image()
 
+                response = self.ask_gpt_with_image(j_command + ". Please help me solve or explain this. Answer in under 25 words.", image_path)
+                self.speak(response)
+            
+            if j_command.startswith("shift"):
+                name = j_command[5:].strip()
+
+                try:
+                    self.voice = name
+                except KeyError:
+                    continue
+
+                self.wake_word = name
+                self.speak(f"Shapeshifting into {name}")
 
             # || ------------------------------ ||
 
@@ -130,7 +150,7 @@ class NovaNotes:
                 self.__deactivate_gpt()
                 continue
             
-            if command.startswith(f"hey {WAKE_WORD}"): 
+            if command.startswith(f"hey {self.wake_word}"): 
                 self.__activate_gpt()
             
             # GPT Response if activated
