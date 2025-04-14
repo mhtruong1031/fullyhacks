@@ -11,7 +11,30 @@ AUDIO_FOLDER = ""
 
 # ElevenLabs Voice IDs
 voice_ids = {
-    "ChaewonLeSserafim": 'hESB0LdnxTU2qjDJP66z'
+    "brian": "SfKbRWiMPinHRbhypbou",
+    "caillou": "FXTfjrw2sZOVFv2ERdxr",
+    "chaewon": "hESB0LdnxTU2qjDJP66z",
+    "danielle": "0fvxxvs9l2VDSpSQtTqc",
+    "drake": "RGlIXmEoMdWfWkpFYbif",
+    "felix": "GrZMm10fDuOofyrsqTQd",
+    "ferb": "M3qsNO6XANylP7AmUQkI",
+    "goofy": "FXTfjrw2sZOVFv2ERdxr",
+    "hanni": "o4JtCbuitPnj2SgiuEU9",
+    "jungkook": "Vc7U3RawVbaaUT7gQJ2h",
+    "karina": "lZguGVnpHrN4p6XnMWsd",
+    "kendrick": "5XkAkRgE3SIlLLWzBLLs",
+    "lee": "p2vSlfaaqNmog0Wtzktc",
+    "minji": "9UMexJQSZUScY3xSnzPP",
+    "mickey": "nK82ybbzLlPQRAuZoxIW",
+    "patrick": "BjcYkGOFPJUzISUUQQsQ",
+    "peter": "w2ndOdlxwHYLpg1zv8Cu",
+    "phineas": "lBcCI5qWts12nUcCW0r5",
+    "stewie": "ltfUg1WRmlHlH5KXa4gP",
+    "spongebob": "C8inc5Ai570PNNKgYMSA",
+    "travis": "ULsfwwBnJezY2FmTgPm7",
+    "tzuyu": "a07wHmHnd2QUqyQd1W2J",
+    "wonyoung": "AEstRh9tiKpbDKjEcqgV",
+    "yunjin": "R73PgX77enlYNz3GX65U"
 }
 
 def create_audio_folder():
